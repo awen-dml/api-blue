@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\UUID;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Store extends Model
 {
-    use UUID;
+    use UUID, HasFactory;
 
     protected $fillable = [
         'user_id',
@@ -21,6 +22,16 @@ class Store extends Model
         'postal_code',
         'is_verified',
     ];
+
+    protected $casts = [
+        'is_verified' => 'boolean',
+    ];
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('name', 'like', '%' . $search . '%')
+            ->orWhere('phone', 'like', '%' . $search . '%');
+    }
 
     public function user()
     {

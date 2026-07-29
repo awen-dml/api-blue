@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Interfaces;
+
+interface StoreRepositoryInterface
+{
+    public function getAll(
+        ?string $search,
+        ?bool $isVerified,
+        ?string $limit,
+        bool $execute
+    );
+
+    public function getAllPaginated(
+        ?string $search,
+        ?bool $isVerified,
+        ?int $rowPerPage,
+    ); 
+
+    public function getById(
+        string $id
+        );
+
+    //     public function create(
+    //         array $data
+    //     );
+        
+    //     public function update(
+    //         string $id,
+    //         array $data
+    //     );
+
+    //     public function delete(
+    //         string $id
+    //     );
+}
