@@ -59,27 +59,58 @@ class StoreRepository implements StoreRepositoryInterface
             return $query->first();
         } 
 
-    // public function create(
-    //         array $data
-    //     ) {
-    //         DB::beginTransaction();        
+    public function create(
+            array $data
+        ) {
+            DB::beginTransaction();        
 
-    //         try {
-    //             $user = new User();
-    //             $user->name = $data['name'];
-    //             $user->email = $data['email'];
-    //             $user->password = bcrypt($data['password']);
-    //             $user->save();
+            try {
+                $store = new Store();
+                $store->user_id = $data['user_id'];
+                $store->name = $data['name'];
+                $store->logo = $data['logo']->store('assets/store', 'public');
+                $store->about = $data['about'];
+                $store->phone = $data['phone'];
+                $store->address_id = $data['address_id'];
+                $store->city = $data['city'];
+                $store->address = $data['address'];
+                $store->postal_code = $data['postal_code'];
+                $store->save();
 
-    //             DB::commit();
+                $store->storeBallance()->create([
+                    'balance' => 0,
+                ]);
+                
+                DB::commit();
 
-    //             return $user;
-    //             } catch (\Exception $e) {
-    //                 DB::rollBack();
+                return $store;
+                } catch (\Exception $e) {
+                    DB::rollBack();
                     
-    //                 throw new Exception($e->getMessage());
-    //             }
-    //         }
+                    throw new Exception($e->getMessage());
+                }
+            }
+            
+    public function updateVerifiedStatus(
+            string $id,
+            bool $isVerified
+        ) {
+            DB::beginTransaction();        
+
+            try {
+                $store = Store::find($id);
+                $store->is_verified = $isVerified;
+                $store->save();
+
+                DB::commit();
+
+                return $store;
+            } catch (\Exception $e) {
+                DB::rollBack();
+                
+                throw new Exception($e->getMessage());
+            }
+        }
 
     //         public function update(
     //             string $id,

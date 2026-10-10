@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHelper;
+use App\Http\Requests\StoreStoreRequest;
 use App\Http\Resources\StoreResource;
 use App\Interfaces\StoreRepositoryInterface;
 use Illuminate\Http\Request;
@@ -58,9 +59,16 @@ class StoreController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreStoreRequest $request)
     {
-        //
+        $request = $request->validated();
+
+        try {
+            $store = $this->storeRepository->create($request);
+            return ResponseHelper::jsonResponse(true, 'Data Toko Berhasil Dibuat', new StoreResource($store), 201);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
     }
 
     /**
@@ -74,6 +82,26 @@ class StoreController extends Controller
                 return ResponseHelper::jsonResponse(false, 'Data Toko Tidak Ditemukan', null, 404);
             }
             return ResponseHelper::jsonResponse(true, 'Data Toko Berhasil Diambil', new StoreResource($store), 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
+    }
+
+    public function updateVerifiedStatus(string $id)
+    {
+        try {
+            $store = $this->storeRepository->getById($id);
+
+            if (!$store) {
+                return ResponseHelper::jsonResponse(false, 'Data Toko Tidak Ditemukan', null, 404);
+            }
+
+            $store = $this->storeRepository->updateVerifiedStatus(
+                $id, 
+                true
+            );
+            
+            return ResponseHelper::jsonResponse(true, 'Status Verifikasi Toko Berhasil Diubah', null, 200);
         } catch (\Exception $e) {
             return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
         }
