@@ -112,46 +112,52 @@ class StoreRepository implements StoreRepositoryInterface
             }
         }
 
-    //         public function update(
-    //             string $id,
-    //             array $data
-    //         ) {
-    //             DB::beginTransaction();        
+        public function update(
+            string $id,
+            array $data
+        ) {
+            DB::beginTransaction();        
 
-    //             try {
-    //                 $user = User::find($id);
-    //                 $user->name = $data['name'];
-    //                 if (isset($data['password'])) {
-    //                     $user->password = bcrypt($data['password']);
-    //                 }
-    //                 $user->save();
+            try {
+                $store = Store::find($id);
+                $store->name = $data['name'];
+                if (isset($data['logo'])) {
+                    $store->logo = $data['logo']->store('assets/store', 'public');
+                }
+                $store->about = $data['about'];
+                $store->phone = $data['phone'];
+                $store->address_id = $data['address_id'];
+                $store->city = $data['city'];
+                $store->address = $data['address'];
+                $store->postal_code = $data['postal_code'];
+                $store->save();
 
-    //                 DB::commit();
+                DB::commit();
 
-    //                 return $user;
-    //             } catch (\Exception $e) {
-    //                 DB::rollBack();
+                return $store;
+            } catch (\Exception $e) {
+                DB::rollBack();
+                
+                throw new Exception($e->getMessage());
+            }
+        }   
+
+    public function delete(
+                string $id
+            ) {
+                DB::beginTransaction();        
+
+                try {
+                    $store = Store::find($id);
+                    $store->delete();
+
+                    DB::commit();
+
+                    return $store;
+                } catch (\Exception $e) {
+                    DB::rollBack();
                     
-    //                 throw new Exception($e->getMessage());
-    //             }
-    //         }   
-
-    // public function delete(
-    //             string $id
-    //         ) {
-    //             DB::beginTransaction();        
-
-    //             try {
-    //                 $user = User::find($id);
-    //                 $user->delete();
-
-    //                 DB::commit();
-
-    //                 return true;
-    //             } catch (\Exception $e) {
-    //                 DB::rollBack();
-                    
-    //                 throw new Exception($e->getMessage());
-    //             }
-    //         }
+                    throw new Exception($e->getMessage());
+                }
+            }
 }

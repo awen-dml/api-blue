@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\StoreStoreRequest;
+use App\Http\Requests\StoreUpdateRequest;
 use App\Http\Resources\StoreResource;
 use App\Interfaces\StoreRepositoryInterface;
 use Illuminate\Http\Request;
@@ -110,9 +111,23 @@ class StoreController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(StoreUpdateRequest $request, string $id)
     {
-        //
+        $validatedData = $request->validated();
+
+        try {
+            $store = $this->storeRepository->getById($id);
+
+            if (!$store) {
+                return ResponseHelper::jsonResponse(false, 'Data Toko Tidak Ditemukan', null, 404);
+            }
+
+            $store = $this->storeRepository->update($id, $validatedData);
+
+            return ResponseHelper::jsonResponse(true, 'Data Toko Berhasil Diperbarui', new StoreResource($store), 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
     }
 
     /**
@@ -120,6 +135,18 @@ class StoreController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $store = $this->storeRepository->getById($id);
+
+            if (!$store) {
+                return ResponseHelper::jsonResponse(false, 'Data Toko Tidak Ditemukan', null, 404);
+            }
+
+            $this->storeRepository->delete($id);
+
+            return ResponseHelper::jsonResponse(true, 'Data Toko Berhasil Dihapus', null, 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, $e->getMessage(), null, 500);
+        }
     }
 }
